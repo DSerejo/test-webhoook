@@ -1,0 +1,13 @@
+{
+    "description": "",
+    "name": "lenovo/src",
+    "authors": [
+        {
+            "name": "Denny Serejo",
+            "email": "denny_serejo@hotmail.com"
+        }
+    ],
+    "require-dev": {
+        "phalcon/ide-stubs": "^3.4"
+    }
+}

@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+    nginx:
+        build:
+            context: ../
+            dockerfile: docker/nginx/Dockerfile
+            image: ${DOCKER_REGISTRY}/ds-nginx
+    api:
+        build:
+            context: ../
+            dockerfile: docker/php/Dockerfile
+            image: ${DOCKER_REGISTRY}/ds-api
+            args: 
+                - DB_HOST:${DB_HOST}
+                - DB_USER:${DB_USER}
+                - DB_PASSWORD:${DB_PASSWORD}
+                - DB_DATABASE:${DB_DATABASE}
+
+    mysql:
+        build:
+            context: ../
+            dockerfile: docker/mysql/Dockerfile
+            image: ${DOCKER_REGISTRY}/ds-mysql
+        environment:
+            MYSQL_DATABASE: meglms
+            MYSQL_USER: meglms
+            MYSQL_PASSWORD: meglms#123
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        volumes: 
+            - /data/db/ds-mysql${PROJECT_NAME}:/var/lib/mysql
+        
+        

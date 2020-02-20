@@ -1,0 +1,1 @@
+create table meglms.test select 1 as 'test';
