@@ -24,10 +24,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - env:
-          TESTE: ${{ github.ref }}  
+      - name: Checkout
+        uses: actions/checkout@v2
+        
       - name: Run tests
+        env:
+          TESTE: ${{ github.ref }}  
         run: |
           echo $TEST
 
