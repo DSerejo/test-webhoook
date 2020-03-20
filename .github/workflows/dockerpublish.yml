@@ -14,13 +14,15 @@ on:
   pull_request:
 
 env:
-  # TODO: Change variable to your image's name.
-  IMAGE_NAME: image
+  DOCKER_REGISTRY: 358506792072.dkr.ecr.us-west-2.amazonaws.com
+  domain: staging.seagage.com
+  cluster: meglms-staging
+  listener: arn:aws:elasticloadbalancing:us-west-2:358506792072:listener/app/meglms-staging/bac445315ff09a91/f84932354362b161
+  vpc: vpc-0b9459baf9dcb6383
 
 jobs:
-  # Run tests.
-  # See also https://docs.docker.com/docker-hub/builds/automated-testing/
-  test:
+
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,11 +33,29 @@ jobs:
         shell: bash
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: sa-east-1
+          
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
         
-      - name: Run tests
-        env:
-          TESTE: ${{ steps.extract_branch.outputs.branch }} 
-        run: |
-          echo "$TESTE"
+      - name: Build and Push to ECR
+      - uses: chrislennon/action-aws-cli@v1.1
+      - env:
+          PROJECT_NAME: ${{ steps.extract_branch.outputs.branch }} 
+      - run: |
+          cd docker
+          for r in $(grep 'image: \${DOCKER_REGISTRY}' docker-compose.staging.yml | sed -e 's/^.*\///')
+          do
+              repo=$(echo $r | sed -e 's/\:.*//')
+              aws ecr create-repository --repository-name "$repo" || true
+              fullrepo=$(echo $r | envsubst)
+              docker push  ${DOCKER_REGISTRY}/$fullrepo
+          done
 
   
