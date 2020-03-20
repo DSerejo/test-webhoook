@@ -5,12 +5,13 @@ services:
         build:
             context: ../
             dockerfile: docker/nginx/Dockerfile
-            image: ${DOCKER_REGISTRY}/ds-nginx
+        image: ${DOCKER_REGISTRY}/ds-nginx
     api:
+        image: ${DOCKER_REGISTRY}/ds-api
         build:
             context: ../
             dockerfile: docker/php/Dockerfile
-            image: ${DOCKER_REGISTRY}/ds-api
+        
             args: 
                 - DB_HOST:${DB_HOST}
                 - DB_USER:${DB_USER}
@@ -21,7 +22,7 @@ services:
         build:
             context: ../
             dockerfile: docker/mysql/Dockerfile
-            image: ${DOCKER_REGISTRY}/ds-mysql
+        image: ${DOCKER_REGISTRY}/ds-mysql
         environment:
             MYSQL_DATABASE: meglms
             MYSQL_USER: meglms
