@@ -48,9 +48,9 @@ jobs:
         uses: chrislennon/action-aws-cli@v1.1
       
       - name: Build and Push to ECR
-      - env:
+        env:
           PROJECT_NAME: ${{ steps.extract_branch.outputs.branch }} 
-      - run: |
+        run: |
           cd docker
           for r in $(grep 'image: \${DOCKER_REGISTRY}' docker-compose.staging.yml | sed -e 's/^.*\///')
           do
