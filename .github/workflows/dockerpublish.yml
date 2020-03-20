@@ -44,14 +44,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
         
-      - name: Cache node modules
-        uses: actions/cache@v1
-        env:
-          cache-name: cache-node-modules
-        with: 
-          path: ~/.aws-cli
-          key: ${{ runner.os }}
-        
+             
       - name: Aws cli
         uses: chrislennon/action-aws-cli@v1.1
       
