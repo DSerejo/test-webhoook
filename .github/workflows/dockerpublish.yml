@@ -44,7 +44,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
         
-      - name: Build and Push to ECR
+      #- name: Build and Push to ECR
       - uses: chrislennon/action-aws-cli@v1.1
       - env:
           PROJECT_NAME: ${{ steps.extract_branch.outputs.branch }} 
