@@ -55,7 +55,11 @@ jobs:
           for r in $(grep 'image: \${DOCKER_REGISTRY}' docker-compose.staging.yml | sed -e 's/^.*\///')
           do
               repo=$(echo $r | sed -e 's/\:.*//')
-              aws ecr create-repository --repository-name "$repo" || true
+              aws ecr describe-repositories --repository-names $repo 2>&1 > /dev/null
+              status=$?
+              if [[ ! "${status}" -eq 0 ]]; then
+                  aws ecr create-repository --repository-name $repo
+              fi
               fullrepo=$(echo $r | envsubst)
               docker push  ${DOCKER_REGISTRY}/$fullrepo
           done
