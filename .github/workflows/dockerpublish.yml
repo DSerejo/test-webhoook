@@ -48,6 +48,8 @@ jobs:
         uses: actions/cache@v1
         env:
           cache-name: cache-node-modules
+        with: 
+          path: ~/.aws-cli
         
       - name: Aws cli
         uses: chrislennon/action-aws-cli@v1.1
