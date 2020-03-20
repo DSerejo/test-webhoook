@@ -51,6 +51,10 @@ jobs:
       - name: Build and Push to ECR
         env:
           PROJECT_NAME: ${{ steps.extract_branch.outputs.branch }} 
+          DB_USER: meglms
+          DB_PASSWORD: meglms#123
+          DB_DATABASE: meglms
+          DB_HOST: mysql
         run: |
           cd docker
           docker-compose --project-name=${PROJECT_NAME} -f docker-compose.staging.yml build
