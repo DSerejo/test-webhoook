@@ -44,6 +44,11 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
         
+      - name: Cache node modules
+        uses: actions/cache@v1
+        env:
+          cache-name: cache-node-modules
+        
       - name: Aws cli
         uses: chrislennon/action-aws-cli@v1.1
       
@@ -52,6 +57,8 @@ jobs:
           PROJECT_NAME: ${{ steps.extract_branch.outputs.branch }} 
         run: |
           cd docker
+          docker-compose --project-name=${PROJECT_NAME} -f docker-compose.staging.yml build
+          
           for r in $(grep 'image: \${DOCKER_REGISTRY}' docker-compose.staging.yml | sed -e 's/^.*\///')
           do
               repo=$(echo $r | sed -e 's/\:.*//')
