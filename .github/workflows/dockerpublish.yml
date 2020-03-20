@@ -50,6 +50,7 @@ jobs:
           cache-name: cache-node-modules
         with: 
           path: ~/.aws-cli
+          key: ${{ runner.os }}
         
       - name: Aws cli
         uses: chrislennon/action-aws-cli@v1.1
