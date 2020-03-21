@@ -49,9 +49,9 @@ jobs:
 
       - name: Load base images
         run: |
-          docker load ~/cache/docker/nginx.tar.gz
-          docker load ~/cache/docker/php.tar.gz
-          docker load ~/cache/docker/mysql.tar.gz
+          docker load -i ~/cache/docker/nginx.tar.gz
+          docker load -i ~/cache/docker/php.tar.gz
+          docker load -i ~/cache/docker/mysql.tar.gz
 
         
       # - name: Extract branch name
