@@ -41,6 +41,7 @@ jobs:
         if: steps.base-images.outputs.cache-hit != 'true'
         run: |
           cd docker
+          mkdir -p ~/cache/docker
           docker-compose -f docker-compose.base.yml build
           docker save nginx:1.17.2-alpine | gzip -9 > ~/cache/docker/nginx.tar.gz
           docker save php-phalcon:7.3-fpm-alpine | gzip -9 > ~/cache/docker/php.tar.gz
