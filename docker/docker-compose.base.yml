@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+    nginx:
+        image: nginx:1.17.2-alpine
+    php:
+        image: php-phalcon:7.3-fpm-alpine
+        build:
+            context: ./base-images/php-phalcon
+            
+    mysql:
+        image: mysql:5.7.27
+        
+        

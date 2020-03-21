@@ -19,6 +19,7 @@ env:
   cluster: meglms-staging
   listener: arn:aws:elasticloadbalancing:us-west-2:358506792072:listener/app/meglms-staging/bac445315ff09a91/f84932354362b161
   vpc: vpc-0b9459baf9dcb6383
+  cache-docker: 1
 
 jobs:
 
@@ -28,47 +29,68 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        
-      - name: Extract branch name
-        shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: extract_branch
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+
+      - name: Cache base images
+        uses: actions/cache@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: sa-east-1
-          
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-        
-             
-      - name: Aws cli
-        uses: chrislennon/action-aws-cli@v1.1
-      
-      - name: Build and Push to ECR
-        env:
-          PROJECT_NAME: ${{ steps.extract_branch.outputs.branch }} 
-          DB_USER: meglms
-          DB_PASSWORD: meglms#123
-          DB_DATABASE: meglms
-          DB_HOST: mysql
+          path: ~/cache/docker
+          key: ${{ runner.os }}-build-${{ env.cache-docker }}
+
+      - name: Build base images
         run: |
           cd docker
-          docker-compose --project-name=${PROJECT_NAME} -f docker-compose.staging.yml build
+          docker-compose -f docker-compose.base.yml build
+          docker save nginx:1.17.2-alpine | gzip -9 > nginx.tar.gz
+          docker save php-phalcon:7.3-fpm-alpine | gzip -9 > php.tar.gz
+          docker save mysql:5.7.27/php-phalcon:7.3-fpm-alpine | gzip -9 > mysql.tar.gz
+
+      - name: Load base images
+        run: |
+          docker load ~/cache/docker/nginx.tar.gz
+          docker load ~/cache/docker/php.tar.gz
+          docker load ~/cache/docker/mysql.tar.gz
+
+        
+      # - name: Extract branch name
+      #   shell: bash
+      #   run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      #   id: extract_branch
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: sa-east-1
           
-          for r in $(grep 'image: \${DOCKER_REGISTRY}' docker-compose.staging.yml | sed -e 's/^.*\///')
-          do
-              repo=$(echo $r | sed -e 's/\:.*//')
-              aws ecr describe-repositories --repository-names $repo 2>&1 > /dev/null
-              status=$?
-              if [[ ! "${status}" -eq 0 ]]; then
-                  aws ecr create-repository --repository-name $repo
-              fi
-              fullrepo=$(echo $r | envsubst)
-              docker push  ${DOCKER_REGISTRY}/$fullrepo
-          done
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v1
+        
+             
+      # - name: Aws cli
+      #   uses: chrislennon/action-aws-cli@v1.1
+      
+      # - name: Build and Push to ECR
+      #   env:
+      #     PROJECT_NAME: ${{ steps.extract_branch.outputs.branch }} 
+      #     DB_USER: meglms
+      #     DB_PASSWORD: meglms#123
+      #     DB_DATABASE: meglms
+      #     DB_HOST: mysql
+      #   run: |
+      #     cd docker
+      #     docker-compose --project-name=${PROJECT_NAME} -f docker-compose.staging.yml build
+          
+      #     for r in $(grep 'image: \${DOCKER_REGISTRY}' docker-compose.staging.yml | sed -e 's/^.*\///')
+      #     do
+      #         repo=$(echo $r | sed -e 's/\:.*//')
+      #         aws ecr describe-repositories --repository-names $repo 2>&1 > /dev/null
+      #         status=$?
+      #         if [[ ! "${status}" -eq 0 ]]; then
+      #             aws ecr create-repository --repository-name $repo
+      #         fi
+      #         fullrepo=$(echo $r | envsubst)
+      #         docker push  ${DOCKER_REGISTRY}/$fullrepo
+      #     done
 
   

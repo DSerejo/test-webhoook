@@ -10,7 +10,7 @@ services:
         image: ${DOCKER_REGISTRY}/ds-api
         build:
             context: ../
-            dockerfile: docker/php/Dockerfile
+            dockerfile: docker/php/Dockerfile.prod
         
             args: 
                 - DB_HOST:${DB_HOST}
