@@ -46,6 +46,7 @@ jobs:
           docker save nginx:1.17.2-alpine | gzip -9 > ~/cache/docker/nginx.tar.gz
           docker save php-phalcon:7.3-fpm-alpine | gzip -9 > ~/cache/docker/php.tar.gz
           docker save mysql:5.7.27 | gzip -9 > ~/cache/docker/mysql.tar.gz
+          ls -l ~/cache/docker
 
       - name: Load base images
         run: |
