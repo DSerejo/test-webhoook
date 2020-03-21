@@ -3,6 +3,8 @@ version: "3"
 services:
     nginx:
         image: nginx:1.17.2-alpine
+        build:
+            context: ./base-images/nginx
     php:
         image: php-phalcon:7.3-fpm-alpine
         build:
@@ -10,5 +12,7 @@ services:
             
     mysql:
         image: mysql:5.7.27
+        build:
+            context: ./base-images/mysql
         
         
