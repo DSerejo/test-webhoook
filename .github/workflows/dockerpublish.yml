@@ -76,6 +76,7 @@ jobs:
       
       - name: Build and Push to ECR
         env:
+          DOCKER_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           PROJECT_NAME: ${{ steps.extract_branch.outputs.branch }} 
           DB_USER: meglms
           DB_PASSWORD: meglms#123
