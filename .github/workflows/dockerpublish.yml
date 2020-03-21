@@ -55,46 +55,46 @@ jobs:
           docker load -i ~/cache/docker/mysql.tar.gz
 
         
-      # - name: Extract branch name
-      #   shell: bash
-      #   run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-      #   id: extract_branch
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: sa-east-1
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: sa-east-1
           
-      # - name: Login to Amazon ECR
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v1
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
         
              
-      # - name: Aws cli
-      #   uses: chrislennon/action-aws-cli@v1.1
+      - name: Aws cli
+        uses: chrislennon/action-aws-cli@v1.1
       
-      # - name: Build and Push to ECR
-      #   env:
-      #     PROJECT_NAME: ${{ steps.extract_branch.outputs.branch }} 
-      #     DB_USER: meglms
-      #     DB_PASSWORD: meglms#123
-      #     DB_DATABASE: meglms
-      #     DB_HOST: mysql
-      #   run: |
-      #     cd docker
-      #     docker-compose --project-name=${PROJECT_NAME} -f docker-compose.staging.yml build
+      - name: Build and Push to ECR
+        env:
+          PROJECT_NAME: ${{ steps.extract_branch.outputs.branch }} 
+          DB_USER: meglms
+          DB_PASSWORD: meglms#123
+          DB_DATABASE: meglms
+          DB_HOST: mysql
+        run: |
+          cd docker
+          docker-compose --project-name=${PROJECT_NAME} -f docker-compose.staging.yml build
           
-      #     for r in $(grep 'image: \${DOCKER_REGISTRY}' docker-compose.staging.yml | sed -e 's/^.*\///')
-      #     do
-      #         repo=$(echo $r | sed -e 's/\:.*//')
-      #         aws ecr describe-repositories --repository-names $repo 2>&1 > /dev/null
-      #         status=$?
-      #         if [[ ! "${status}" -eq 0 ]]; then
-      #             aws ecr create-repository --repository-name $repo
-      #         fi
-      #         fullrepo=$(echo $r | envsubst)
-      #         docker push  ${DOCKER_REGISTRY}/$fullrepo
-      #     done
+          for r in $(grep 'image: \${DOCKER_REGISTRY}' docker-compose.staging.yml | sed -e 's/^.*\///')
+          do
+              repo=$(echo $r | sed -e 's/\:.*//')
+              aws ecr describe-repositories --repository-names $repo 2>&1 > /dev/null
+              status=$?
+              if [[ ! "${status}" -eq 0 ]]; then
+                  aws ecr create-repository --repository-name $repo
+              fi
+              fullrepo=$(echo $r | envsubst)
+              docker push  ${DOCKER_REGISTRY}/$fullrepo
+          done
 
   
